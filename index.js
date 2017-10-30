@@ -97,5 +97,10 @@ const printTableRow = (item, era) => {
 
 let item = data['data'][process.argv[2]]
 
+
+console.log(clc.underline(item.title))
+console.log(item.description)
+console.log()
 printTableHeader()
 eras.forEach((era) => printTableRow(item, era))
+console.log("Notes:", item.notes)
