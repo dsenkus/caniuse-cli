@@ -10,5 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "David Senkus",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "caniuse-db": "^1.0.30000756"
+  }
 }
