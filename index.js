@@ -1,10 +1,39 @@
 #!/usr/bin/env node
 const clc = require('cli-color')
+const omelette = require('omelette')
 
 const data = require('caniuse-db/fulldata-json/data-2.0.json')
 const agents = ['ie', 'edge', 'firefox', 'chrome', 'safari', 'opera', 'ios_saf', 'op_mini', 'android', 'and_chr']
 const defaultItemWidth = 6
 const eras = [-3, -2, -1, 0, 1, 2, 3]
+
+const firstArgument = ({fragment, before, reply }) => {
+  let dataKeys = Object.keys(data['data']);
+
+  let otherKeys = Object.keys(data['data']).reduce((keys, item) => {
+      let newKeys = []
+
+      let firefoxId = data['data'][item]['firefox_id']
+      let keywords = data['data'][item]['keywords']
+
+      if (firefoxId.length > 0) {
+        newKeys.push(firefoxId)
+      }
+
+      keywords.split(',').forEach(key => {
+        if (key.trim().length > 0) {
+          newKeys.push(key.trim())
+        }
+      })
+
+      return [].concat(keys, newKeys)
+    })
+
+
+  reply([].concat(dataKeys, otherKeys))
+}
+
+omelette`caniuse ${firstArgument}`.init()
 
 const getAgentVersionByEra = (agent, era) => {
   try {
@@ -95,12 +124,49 @@ const printTableRow = (item, era) => {
   process.stdout.write("\n")
 }
 
-let item = data['data'][process.argv[2]]
+const findResult = (name) => {
+  let items = data['data']
 
+  if (items.hasOwnProperty(name)) {
+    return items[name]
+  }
 
-console.log(clc.underline(item.title))
-console.log(item.description)
-console.log()
-printTableHeader()
-eras.forEach((era) => printTableRow(item, era))
-console.log("Notes:", item.notes)
+  let otherResults = Object.keys(data['data']).filter(key => {
+    let keywords = data['data'][key]['keywords'].split(',').map(item => item.trim()).filter(item => item.length > 0)
+    return data['data'][key]['firefox_id'] === name ||
+      keywords.indexOf(name) >= 0
+  })
+
+  if (otherResults.length > 0) {
+    return otherResults.reduce((list, key) => {
+      return list.concat(data['data'][key])
+    }, [])
+  }
+
+  return undefined
+}
+
+let name = process.argv[2]
+let res = findResult(name)
+
+const printItem = (item) => {
+  console.log(clc.underline(item.title))
+  console.log()
+  console.log(item.description)
+  console.log()
+  printTableHeader()
+  eras.forEach((era) => printTableRow(item, era))
+  console.log()
+  console.log("Notes:", item.notes)
+}
+
+if (res !== undefined) {
+  if(Array.isArray(res)) {
+    res.forEach(item => printItem(item)) 
+  } else {
+    console.log(res)
+    printItem(res)
+  }
+} else {
+  console.log("Nothing was found")
+}
