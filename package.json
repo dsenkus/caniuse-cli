@@ -14,6 +14,7 @@
   "dependencies": {
     "caniuse-db": "^1.0.30000756",
     "cli-color": "^1.2.0",
-    "omelette": "^0.4.5"
+    "omelette": "^0.4.5",
+    "wordwrap": "^1.0.0"
   }
 }

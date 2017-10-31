@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const clc = require('cli-color')
 const omelette = require('omelette')
+const wrap = require('wordwrap')(80)
 
 const data = require('caniuse-db/fulldata-json/data-2.0.json')
 const agents = ['ie', 'edge', 'firefox', 'chrome', 'safari', 'opera', 'ios_saf', 'op_mini', 'android', 'and_chr']
@@ -95,8 +96,10 @@ const printTableHeader = () => {
 const printTableRowItem = (agent, version, data) => {
   let text = padCenter(version, columnWidths[agent], ' ')
 
-  if (data === "y") {
+  if (data[0] === 'y') {
     process.stdout.write(clc.white.bgGreen(text))
+  } else if (data[0] === 'p') {
+    process.stdout.write(clc.white.bgYellow(text))
   } else {
     process.stdout.write(clc.white.bgRed(text))
   }
@@ -150,21 +153,20 @@ let name = process.argv[2]
 let res = findResult(name)
 
 const printItem = (item) => {
-  console.log(clc.underline(item.title))
+  console.log(clc.underline(wrap(item.title)))
   console.log()
-  console.log(item.description)
+  console.log(wrap(item.description))
   console.log()
   printTableHeader()
   eras.forEach((era) => printTableRow(item, era))
   console.log()
-  console.log("Notes:", item.notes)
+  console.log(wrap("Notes: " + item.notes))
 }
 
 if (res !== undefined) {
   if(Array.isArray(res)) {
     res.forEach(item => printItem(item)) 
   } else {
-    console.log(res)
     printItem(res)
   }
 } else {
