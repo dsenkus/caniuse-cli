@@ -16,5 +16,11 @@
     "cli-color": "^1.2.0",
     "omelette": "^0.4.5",
     "wordwrap": "^1.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.10.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0"
   }
 }
