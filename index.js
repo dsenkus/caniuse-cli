@@ -1,174 +1,217 @@
 #!/usr/bin/env node
-const clc = require('cli-color')
-const omelette = require('omelette')
-const wrap = require('wordwrap')(80)
 
-const data = require('caniuse-db/fulldata-json/data-2.0.json')
-const agents = ['ie', 'edge', 'firefox', 'chrome', 'safari', 'opera', 'ios_saf', 'op_mini', 'android', 'and_chr']
-const defaultItemWidth = 6
-const eras = [-3, -2, -1, 0, 1, 2, 3]
+// TODO: add link to caniuse.com site
+// TODO: parse markdown links in notes
 
-const firstArgument = ({fragment, before, reply }) => {
-  let dataKeys = Object.keys(data['data']);
+const clc = require('cli-color');
+const omelette = require('omelette');
+const wrap = require('wordwrap')(80);
+const data = require('caniuse-db/fulldata-json/data-2.0.json');
 
-  let otherKeys = Object.keys(data['data']).reduce((keys, item) => {
-      let newKeys = []
+const agents = ['ie', 'edge', 'firefox', 'chrome', 'safari', 'opera', 'ios_saf', 'op_mini', 'android', 'and_chr'];
+const defaultItemWidth = 6;
+const eras = [-3, -2, -1, 0, 1, 2, 3];
 
-      let firefoxId = data['data'][item]['firefox_id']
-      let keywords = data['data'][item]['keywords']
-
-      if (firefoxId.length > 0) {
-        newKeys.push(firefoxId)
-      }
-
-      keywords.split(',').forEach(key => {
-        if (key.trim().length > 0) {
-          newKeys.push(key.trim())
-        }
-      })
-
-      return [].concat(keys, newKeys)
-    })
-
-
-  reply([].concat(dataKeys, otherKeys))
-}
-
-omelette`caniuse ${firstArgument}`.init()
-
-const getAgentVersionByEra = (agent, era) => {
+/**
+ * getAgentVersion() returns agent version at specified era
+ */
+const getAgentVersion = function getAgentVersion(agent, era) {
   try {
-    return data['agents'][agent].version_list
-      .find((item) => item.era == era).version
+    return data.agents[agent]
+      .version_list.find(item => item.era === era).version;
   } catch (error) {
-    undefined
+    return undefined;
   }
-}
+};
 
-const columnWidths = agents.reduce((collection ,agent) => {
-  let agentAbbr = data['agents'][agent].abbr
-
-  let width = agentAbbr.length > defaultItemWidth ? agentAbbr.length : defaultItemWidth
+/**
+ * columnWidths contains max column width for each agent
+ */
+const columnWidths = agents.reduce((collection, agent) => {
+  const agentAbbr = data.agents[agent].abbr;
+  const agentHeaderWidth = agentAbbr.length > defaultItemWidth
+    ? agentAbbr.length : defaultItemWidth;
 
   // calculate max required width for agent
-  let maxWidth = eras.reduce((max, era) => {
+  const maxWidth = eras.reduce((max, era) => {
     try {
-      let width = getAgentVersionByEra(agent, era).length
+      const width = getAgentVersion(agent, era).length;
       return width > max ? width : max;
     } catch (error) {
-      return max
+      return max;
     }
-  })
+  });
 
   return {
     ...collection,
-    [agent]: maxWidth > width ? maxWidth : width
+    [agent]: maxWidth > agentHeaderWidth ? maxWidth : agentHeaderWidth,
+  };
+}, {});
+
+/**
+ * strRepeat() returns string str repeater qty times
+ */
+const strRepeat = function strRepeat(str, qty) {
+  let result = '';
+  for (let i = 0; i < qty; i += 1) {
+    result += str;
   }
-}, {})
+  return result;
+};
 
+/**
+ * padCenter() returns fixed length string,
+ * padding with padStr from both sides if necessary
+ */
+const padCenter = function padCenter(str, length, padStr) {
+  const padLen = length - str.length;
 
-const strRepeat = (str, qty) => {
-  if (qty < 1) return ''
-  var result = ''
-  while (qty > 0) {
-    if (qty & 1) result += str
-    qty >>= 1, str += str
-  }
-  return result
-}
+  return strRepeat(padStr, Math.ceil(padLen / 2))
+    + str
+    + strRepeat(padStr, Math.floor(padLen / 2));
+};
 
-const padCenter = (str, length, padStr) => {
-  let padLen = length - str.length
-  return strRepeat(padStr, Math.ceil(padLen/2)) + str + strRepeat(padStr, Math.floor(padLen/2))
-}
-
-const printTableHeader = () => {
+/**
+ * printTableHeader() prints `caniuse` table header
+ */
+const printTableHeader = function printTableHeader() {
   agents.forEach((agent) => {
-    process.stdout.write(clc.black.bgWhite(padCenter(data['agents'][agent].abbr, columnWidths[agent], ' ')))
-    process.stdout.write(' ')
-  })
+    const col = clc.black.bgWhite(padCenter(data.agents[agent].abbr, columnWidths[agent], ' '));
+    process.stdout.write(col);
+    process.stdout.write(' ');
+  });
 
-  process.stdout.write("\n")
-}
+  process.stdout.write('\n');
+};
 
+/**
+ * printTableRowItem prints `caniuse` table row column
+ */
+const printTableRowItem = function printTableRowItem(agent, version, dataItem) {
+  const text = padCenter(version, columnWidths[agent], ' ');
 
-
-const printTableRowItem = (agent, version, data) => {
-  let text = padCenter(version, columnWidths[agent], ' ')
-
-  if (data[0] === 'y') {
-    process.stdout.write(clc.white.bgGreen(text))
-  } else if (data[0] === 'p') {
-    process.stdout.write(clc.white.bgYellow(text))
+  if (dataItem[0] === 'y') {
+    process.stdout.write(clc.white.bgGreen(text));
+  } else if (dataItem[0] === 'p') {
+    process.stdout.write(clc.white.bgYellow(text));
   } else {
-    process.stdout.write(clc.white.bgRed(text))
+    process.stdout.write(clc.white.bgRed(text));
   }
-}
+};
 
-const printTableRow = (item, era) => {
+/**
+ *  printTableRow prints `caniuse` trable row
+ */
+const printTableRow = function printTableRow(item, era) {
   agents.forEach((agent, index) => {
-    let version = getAgentVersionByEra(agent, era)
-    if(version !== undefined) {
-      let data = item['stats'][agent][version]
-      printTableRowItem(agent, version, data)
+    const version = getAgentVersion(agent, era);
+
+    if (version !== undefined) {
+      const dataItem = item.stats[agent][version];
+      printTableRowItem(agent, version, dataItem);
     } else {
-      process.stdout.write(padCenter('', 6, ' ')) // space between items
+      // space between items
+      process.stdout.write(padCenter('', 6, ' '));
     }
 
-    if(index < agents.length-1) {
-      if(era === 0) {
-        process.stdout.write(clc.bgBlackBright(' '))
+    if (index < agents.length - 1) {
+      if (era === 0) {
+        process.stdout.write(clc.bgBlackBright(' '));
       } else {
-        process.stdout.write(' ')
+        process.stdout.write(' ');
       }
     }
-  })
+  });
 
-  process.stdout.write("\n")
-}
+  process.stdout.write('\n');
+};
 
-const findResult = (name) => {
-  let items = data['data']
+/**
+ * printItem() prints `caniuse` results for specified item
+ */
+const printItem = function printItem(item) {
+  console.log(clc.underline(wrap(item.title)));
+  console.log();
+  console.log(wrap(item.description));
+  console.log();
+  printTableHeader();
+  eras.forEach(era => printTableRow(item, era));
+  console.log();
+  console.log(wrap(`Notes: ${item.notes}`));
+};
 
-  if (items.hasOwnProperty(name)) {
-    return items[name]
+/**
+ * findResult() returns `caniuse` item matching given name
+ */
+const findResult = function findResult(name) {
+  const items = data.data;
+
+  // return directly matching item
+  if (items.name !== undefined) {
+    return items[name];
   }
 
-  let otherResults = Object.keys(data['data']).filter(key => {
-    let keywords = data['data'][key]['keywords'].split(',').map(item => item.trim()).filter(item => item.length > 0)
-    return data['data'][key]['firefox_id'] === name ||
-      keywords.indexOf(name) >= 0
-  })
+  // find items matching by keyword or firefox_id
+  const otherResults = Object.keys(data.data).filter((key) => {
+    // tokenize keywords, filter white space
+    const keywords = data.data[key].keywords
+      .split(',')
+      .map(item => item.trim())
+      .filter(item => item.length > 0);
 
+    return data.data[key].firefox_id === name ||
+      keywords.indexOf(name) >= 0;
+  });
+
+  // return array of matches
   if (otherResults.length > 0) {
-    return otherResults.reduce((list, key) => {
-      return list.concat(data['data'][key])
-    }, [])
+    return otherResults.reduce((list, key) => list.concat(data.data[key]), []);
   }
 
-  return undefined
-}
+  return undefined;
+};
 
-let name = process.argv[2]
-let res = findResult(name)
+/**
+ * omelette tab completion results for first argument
+ */
+const firstArgument = ({ reply }) => {
+  // add all keys
+  const dataKeys = Object.keys(data.data);
 
-const printItem = (item) => {
-  console.log(clc.underline(wrap(item.title)))
-  console.log()
-  console.log(wrap(item.description))
-  console.log()
-  printTableHeader()
-  eras.forEach((era) => printTableRow(item, era))
-  console.log()
-  console.log(wrap("Notes: " + item.notes))
-}
+  // add keywords and firefox_id's
+  const otherKeys = Object.keys(data.data).reduce((keys, item) => {
+    const newKeys = [];
+    const { firefox_id, keywords } = data.data[item];
+
+    if (firefox_id.length > 0) {
+      newKeys.push(firefox_id);
+    }
+
+    keywords.split(',').forEach((key) => {
+      if (key.trim().length > 0) {
+        newKeys.push(key.trim());
+      }
+    });
+
+    return [].concat(keys, newKeys);
+  });
+
+  reply([].concat(dataKeys, otherKeys));
+};
+
+// initialize omelette tab completion
+omelette`caniuse ${firstArgument}`.init();
+
+// find and display result
+const name = process.argv[2];
+const res = findResult(name);
 
 if (res !== undefined) {
-  if(Array.isArray(res)) {
-    res.forEach(item => printItem(item)) 
+  if (Array.isArray(res)) {
+    res.forEach(item => printItem(item));
   } else {
-    printItem(res)
+    printItem(res);
   }
 } else {
-  console.log("Nothing was found")
+  console.log('Nothing was found');
 }
