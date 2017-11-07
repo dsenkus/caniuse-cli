@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-// TODO: add link to caniuse.com site
 // TODO: parse markdown links in notes
 
 const clc = require('cli-color');
@@ -130,7 +129,8 @@ const printTableRow = function printTableRow(item, era) {
  * printItem() prints `caniuse` results for specified item
  */
 const printItem = function printItem(item) {
-  console.log(clc.underline(wrap(item.title)));
+  console.log(clc.underline(wrap(`${item.title}`)));
+  console.log(`https://caniuse.com/#feat=${item.key}`);
   console.log();
   console.log(wrap(item.description));
   console.log();
@@ -201,6 +201,10 @@ const firstArgument = ({ reply }) => {
 
 // initialize omelette tab completion
 omelette`caniuse ${firstArgument}`.init();
+
+Object.keys(data.data).forEach((key) => {
+  data.data[key].key = key;
+});
 
 // find and display result
 const name = process.argv[2];
