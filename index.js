@@ -136,8 +136,10 @@ const printItem = function printItem(item) {
   console.log();
   printTableHeader();
   eras.forEach(era => printTableRow(item, era));
-  console.log();
-  console.log(wrap(`Notes: ${item.notes}`));
+  if (item.notes) {
+    console.log();
+    console.log(wrap(`Notes: ${item.notes}`));
+  }
 };
 
 /**
