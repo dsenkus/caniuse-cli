@@ -1,7 +1,7 @@
 {
   "name": "caniuse-cli",
   "version": "1.0.0",
-  "description": "",
+  "description": "Comman line tool for Caniuse database",
   "main": "index.js",
   "bin": {
     "caniuse": "./index.js"
