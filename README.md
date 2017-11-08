@@ -15,6 +15,12 @@ Command line tool for caniuse database.
 ```
 # npm install -g caniuse-cli
 ```
+
+## Usage
+
+```bash
+$ caniuse webrtc
+```
 ## Enable Tab Autocompletion
 In **zsh**:
 
