@@ -149,7 +149,7 @@ const findResult = function findResult(name) {
   const items = data.data;
 
   // return directly matching item
-  if (items.name !== undefined) {
+  if (items[name] !== undefined) {
     return items[name];
   }
 
