@@ -2,6 +2,13 @@
   "name": "caniuse-cli",
   "version": "1.0.1",
   "description": "Comman line tool for Caniuse database",
+  "keywords": [
+    "support",
+    "css",
+    "js",
+    "html5",
+    "svg"
+  ],
   "main": "index.js",
   "bin": {
     "caniuse": "./index.js"
