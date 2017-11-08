@@ -204,6 +204,7 @@ const firstArgument = ({ reply }) => {
 // initialize omelette tab completion
 omelette`caniuse ${firstArgument}`.init();
 
+// inject key for each item in data object
 Object.keys(data.data).forEach((key) => {
   data.data[key].key = key;
 });
