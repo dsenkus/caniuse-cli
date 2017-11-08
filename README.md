@@ -9,7 +9,6 @@ Command line tool for caniuse database.
 * Uses [caniuse-db](https://github.com/Fyrd/caniuse) internally, so results are displayed instantly.
 * Supports tab autocompletion in **zsh**, **bash** and **fish**.
 
-
 ## Installation
 
 ```
