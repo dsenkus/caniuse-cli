@@ -2,7 +2,7 @@
 
 Command line tool for caniuse database.
 
-![caniuse-cli screenshot](/screenshot.png?raw=true)
+![caniuse-cli screenshot](https://github.com/dsenkus/caniuse-cli/raw/master/screenshot.png?raw=true)
 
 ## Features
 
@@ -14,6 +14,12 @@ Command line tool for caniuse database.
 
 ```
 # npm install -g caniuse-cli
+```
+
+## Usage
+
+```bash
+$ caniuse webrtc
 ```
 ## Enable Tab Autocompletion
 In **zsh**:

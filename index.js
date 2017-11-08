@@ -143,23 +143,35 @@ const printItem = function printItem(item) {
 };
 
 /**
+ * parseKeywords() parses keywords from string
+ * returns parsed array of keywords
+ */
+const parseKeywords = function parseKeywords(keywords) {
+  const parsedKeywords = [];
+
+  keywords.split(',')
+    .map(item => item.trim())
+    .filter(item => item.length > 0)
+    .map(item => item.split(' ').join('-'))
+    .forEach(item => parsedKeywords.push(item));
+
+  return parsedKeywords;
+};
+
+/**
  * findResult() returns `caniuse` item matching given name
  */
 const findResult = function findResult(name) {
   const items = data.data;
 
   // return directly matching item
-  if (items.name !== undefined) {
+  if (items[name] !== undefined) {
     return items[name];
   }
 
   // find items matching by keyword or firefox_id
   const otherResults = Object.keys(data.data).filter((key) => {
-    // tokenize keywords, filter white space
-    const keywords = data.data[key].keywords
-      .split(',')
-      .map(item => item.trim())
-      .filter(item => item.length > 0);
+    const keywords = parseKeywords(data.data[key].keywords);
 
     return data.data[key].firefox_id === name ||
       keywords.indexOf(name) >= 0;
@@ -182,18 +194,14 @@ const firstArgument = ({ reply }) => {
 
   // add keywords and firefox_id's
   const otherKeys = Object.keys(data.data).reduce((keys, item) => {
-    const newKeys = [];
+    let newKeys = [];
     const { firefox_id, keywords } = data.data[item];
 
     if (firefox_id.length > 0) {
       newKeys.push(firefox_id);
     }
 
-    keywords.split(',').forEach((key) => {
-      if (key.trim().length > 0) {
-        newKeys.push(key.trim());
-      }
-    });
+    newKeys = newKeys.concat(parseKeywords(keywords));
 
     return [].concat(keys, newKeys);
   });
@@ -204,6 +212,7 @@ const firstArgument = ({ reply }) => {
 // initialize omelette tab completion
 omelette`caniuse ${firstArgument}`.init();
 
+// inject key for each item in data object
 Object.keys(data.data).forEach((key) => {
   data.data[key].key = key;
 });
