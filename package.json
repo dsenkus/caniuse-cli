@@ -14,7 +14,7 @@
     "caniuse": "./index.js"
   },
   "scripts": {
-    "upgrade-db": "npm update --save caniuse-db",
+    "upgrade-db": "npm update --save caniuse-db && git add package.json && git commit -m \"upgrade db\"",
     "bump-version": "node ./bump_version.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
