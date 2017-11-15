@@ -129,8 +129,8 @@ const printTableRow = function printTableRow(item, era) {
  * printItem() prints `caniuse` results for specified item
  */
 const printItem = function printItem(item) {
-  console.log(clc.underline(wrap(`${item.title}`)));
-  console.log(`https://caniuse.com/#feat=${item.key}`);
+  console.log(clc.bold(wrap(`${item.title}`)));
+  console.log(clc.underline(`https://caniuse.com/#feat=${item.key}`));
   console.log();
   console.log(wrap(item.description));
   console.log();
