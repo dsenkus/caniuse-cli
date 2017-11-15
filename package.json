@@ -1,6 +1,6 @@
 {
   "name": "caniuse-cli",
-  "version": "1.0.2",
+  "version": "1.0.30000764",
   "description": "Comman line tool for Caniuse database",
   "keywords": [
     "support",
