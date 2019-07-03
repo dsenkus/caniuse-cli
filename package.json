@@ -21,7 +21,7 @@
   "author": "David Senkus",
   "license": "ISC",
   "dependencies": {
-    "caniuse-db": "^1.0.30000777",
+    "caniuse-db": "^1.0.30000979",
     "cli-color": "^1.2.0",
     "omelette": "^0.4.5",
     "wordwrap": "^1.0.0"
