@@ -24,13 +24,13 @@ $ caniuse webrtc
 In **zsh**:
 
 ```bash
-echo '. <(./caniuse --completion)' >> ~/.zshrc
+echo '. <(caniuse --completion)' >> ~/.zshrc
 ```
 
 In **bash**:
 
 ```bash
-./caniuse --completion >> ~/.caniuse.completion.sh
+caniuse --completion >> ~/.caniuse.completion.sh
 echo 'source ~/.caniuse.completion.sh' >> ~/.bashrc
 ```
 
